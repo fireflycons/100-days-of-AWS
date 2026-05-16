@@ -13,9 +13,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "subnet_name" {
-  description = "Name of the subnet"
+variable "infrastructure_prefix" {
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 data "aws_vpc" "default" {
@@ -29,6 +34,6 @@ resource "aws_subnet" "subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = var.subnet_name
+    Name = "${var.infrastructure_prefix}-subnet"
   }
 }

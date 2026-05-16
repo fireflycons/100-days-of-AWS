@@ -23,9 +23,14 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "resource_prefix" {
+variable "infrastructure_prefix" {
   type        = string
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 #######################################
@@ -35,7 +40,7 @@ variable "resource_prefix" {
 data "aws_vpc" "private_vpc" {
   filter {
     name   = "tag:Name"
-    values = ["${var.resource_prefix}-priv-vpc"]
+    values = ["${var.infrastructure_prefix}-priv-vpc"]
   }
 }
 
@@ -49,14 +54,14 @@ data "aws_subnets" "existing_subnets" {
 data "aws_subnet" "private_subnet" {
   filter {
     name   = "tag:Name"
-    values = ["${var.resource_prefix}-priv-subnet"]
+    values = ["${var.infrastructure_prefix}-priv-subnet"]
   }
 }
 
 data "aws_instance" "private_instance" {
   filter {
     name   = "tag:Name"
-    values = ["${var.resource_prefix}-priv-ec2"]
+    values = ["${var.infrastructure_prefix}-priv-ec2"]
   }
 }
 
@@ -68,7 +73,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = data.aws_vpc.private_vpc.id
 
   tags = {
-    Name = "${var.resource_prefix}-igw"
+    Name = "${var.infrastructure_prefix}-igw"
   }
 }
 
@@ -114,7 +119,7 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.resource_prefix}-pub-subnet"
+    Name = "${var.infrastructure_prefix}-pub-subnet"
   }
 }
 
@@ -131,7 +136,7 @@ resource "aws_route_table" "public_rt" {
   }
 
   tags = {
-    Name = "${var.resource_prefix}-pub-rt"
+    Name = "${var.infrastructure_prefix}-pub-rt"
   }
 }
 
@@ -174,7 +179,7 @@ locals {
 #######################################
 
 resource "aws_security_group" "nat_sg" {
-  name        = "${var.resource_prefix}-nat-sg"
+  name        = "${var.infrastructure_prefix}-nat-sg"
   description = "Allow traffic from VPC for NAT"
   vpc_id      = data.aws_vpc.private_vpc.id
 
@@ -203,7 +208,7 @@ resource "aws_security_group" "nat_sg" {
   }
 
   tags = {
-    Name = "${var.resource_prefix}-nat-sg"
+    Name = "${var.infrastructure_prefix}-nat-sg"
   }
 }
 
@@ -270,7 +275,7 @@ resource "aws_instance" "nat_instance" {
   EOF
 
   tags = {
-    Name = "${var.resource_prefix}-nat-instance"
+    Name = "${var.infrastructure_prefix}-nat-instance"
   }
 
   depends_on = [aws_internet_gateway.igw]

@@ -22,9 +22,14 @@ provider "aws" {
 # Variables
 ###############################################################################
 
-variable "key_pair_name" {
-  description = "Name of the EC2 key pair"
+variable "infrastructure_prefix" {
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 ###############################################################################
@@ -41,7 +46,7 @@ resource "tls_private_key" "ec2_key" {
 ###############################################################################
 
 resource "aws_key_pair" "ec2_keypair" {
-  key_name   = var.key_pair_name
+  key_name   = "${var.infrastructure_prefix}-kp"
   public_key = tls_private_key.ec2_key.public_key_openssh
 }
 

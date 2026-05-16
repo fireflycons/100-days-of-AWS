@@ -11,9 +11,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "security_group_name" {
-  description = "Name of the security group"
+variable "infrastructure_prefix" {
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 data "aws_vpc" "default" {
@@ -21,7 +26,7 @@ data "aws_vpc" "default" {
 }
 
 resource "aws_security_group" "sg" {
-  name        = var.security_group_name
+  name        = "${var.infrastructure_prefix}-sg"
   description = "Security group for Nautilus App Servers"
   vpc_id      = data.aws_vpc.default.id
 
@@ -50,6 +55,6 @@ resource "aws_security_group" "sg" {
   }
 
   tags = {
-    Name = var.security_group_name
+    Name = "${var.infrastructure_prefix}-sg"
   }
 }

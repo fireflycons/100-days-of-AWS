@@ -17,9 +17,14 @@ provider "aws" {
 # Variables
 #################################################
 
-variable "name_prefix" {
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+variable "infrastructure_prefix" {
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 #################################################
@@ -43,7 +48,7 @@ data "aws_subnets" "default" {
 data "aws_instance" "ec2_instance" {
   filter {
     name   = "tag:Name"
-    values = ["${var.name_prefix}-ec2"]
+    values = ["${var.infrastructure_prefix}-ec2"]
   }
 }
 
@@ -52,7 +57,7 @@ data "aws_instance" "ec2_instance" {
 #################################################
 
 resource "aws_security_group" "alb_sg" {
-  name        = "${var.name_prefix}-sg"
+  name        = "${var.infrastructure_prefix}-sg"
   description = "Allow HTTP traffic to ALB"
   vpc_id      = data.aws_vpc.default.id
 
@@ -73,7 +78,7 @@ resource "aws_security_group" "alb_sg" {
   }
 
   tags = {
-    Name = "${var.name_prefix}-sg"
+    Name = "${var.infrastructure_prefix}-sg"
   }
 }
 
@@ -96,13 +101,13 @@ resource "aws_security_group_rule" "allow_alb_to_ec2" {
 #################################################
 
 resource "aws_lb_target_group" "tg" {
-  name     = "${var.name_prefix}-tg"
+  name     = "${var.infrastructure_prefix}-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.default.id
 
   tags = {
-    Name = "${var.name_prefix}-tg"
+    Name = "${var.infrastructure_prefix}-tg"
   }
 }
 
@@ -121,7 +126,7 @@ resource "aws_lb_target_group_attachment" "ec2_attachment" {
 #################################################
 
 resource "aws_lb" "alb" {
-  name               = "${var.name_prefix}-alb"
+  name               = "${var.infrastructure_prefix}-alb"
   internal           = false
   load_balancer_type = "application"
 
@@ -132,7 +137,7 @@ resource "aws_lb" "alb" {
   subnets = slice(data.aws_subnets.default.ids, 0, 2)
 
   tags = {
-    Name = "${var.name_prefix}-alb"
+    Name = "${var.infrastructure_prefix}-alb"
   }
 }
 

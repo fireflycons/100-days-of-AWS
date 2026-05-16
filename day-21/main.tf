@@ -13,9 +13,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "resource_prefix" {
-  description = "Prefix used for naming AWS resources (e.g. devops, xfusion, datacenter, nautilus etc.)"
+variable "infrastructure_prefix" {
+  description = "Prefix used for naming AWS resources (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 data "aws_ami" "ubuntu" {
@@ -39,7 +44,7 @@ resource "aws_instance" "ec2" {
   instance_type = "t2.micro"
 
   tags = {
-    Name = "${var.resource_prefix}-ec2"
+    Name = "${var.infrastructure_prefix}-ec2"
   }
 }
 
@@ -47,7 +52,7 @@ resource "aws_eip" "eip" {
   domain = "vpc"
 
   tags = {
-    Name = "${var.resource_prefix}-eip"
+    Name = "${var.infrastructure_prefix}-eip"
   }
 }
 

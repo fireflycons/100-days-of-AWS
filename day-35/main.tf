@@ -21,9 +21,14 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
-variable "infra_prefix" {
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+variable "infrastructure_prefix" {
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 variable "rds_password" {
@@ -95,7 +100,7 @@ resource "aws_security_group_rule" "ec2_ssh_ingress" {
 }
 
 resource "aws_security_group" "rds_sg" {
-  name   = "${var.infra_prefix}-rds-sg"
+  name   = "${var.infrastructure_prefix}-rds-sg"
   vpc_id = data.aws_vpc.default.id
 
   ingress {
@@ -113,36 +118,36 @@ resource "aws_security_group" "rds_sg" {
   }
 
   tags = {
-    Name = "${var.infra_prefix}-rds-sg"
+    Name = "${var.infrastructure_prefix}-rds-sg"
   }
 }
 
 resource "aws_db_subnet_group" "rds_subnet_group" {
-  name       = "${var.infra_prefix}-rds-subnet-group"
+  name       = "${var.infrastructure_prefix}-rds-subnet-group"
   subnet_ids = data.aws_subnets.default.ids
 
   tags = {
-    Name = "${var.infra_prefix}-rds-subnet-group"
+    Name = "${var.infrastructure_prefix}-rds-subnet-group"
   }
 }
 
 resource "aws_db_instance" "rds" {
-  identifier             = "${var.infra_prefix}-rds"
+  identifier             = "${var.infrastructure_prefix}-rds"
   engine                 = "mysql"
   engine_version         = var.mysql_engine_version
   instance_class         = "db.t3.micro"
-  username               = "${var.infra_prefix}_admin"
+  username               = "${var.infrastructure_prefix}_admin"
   password               = var.rds_password
   allocated_storage      = 5
   storage_type           = "gp2"
-  db_name                = "${var.infra_prefix}_db"
+  db_name                = "${var.infrastructure_prefix}_db"
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
   publicly_accessible    = false
   skip_final_snapshot    = true
 
   tags = {
-    Name = "${var.infra_prefix}-rds"
+    Name = "${var.infrastructure_prefix}-rds"
   }
 }
 
@@ -155,7 +160,7 @@ output "db_host" {
 }
 
 output "db_name" {
-  value = "${var.infra_prefix}_db"
+  value = "${var.infrastructure_prefix}_db"
 }
 
 output "db_username" {

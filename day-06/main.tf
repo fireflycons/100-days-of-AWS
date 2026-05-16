@@ -23,9 +23,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "name_prefix" {
+variable "infrastructure_prefix" {
   description = "Prefix used for resource names (e.g. devops, xfusion etc)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 # Get the latest Amazon Linux 2023 AMI from SSM
@@ -52,14 +57,14 @@ resource "tls_private_key" "rsa" {
 
 # Create AWS key pair
 resource "aws_key_pair" "kp" {
-  key_name   = "${var.name_prefix}-kp"
+  key_name   = "${var.infrastructure_prefix}-kp"
   public_key = tls_private_key.rsa.public_key_openssh
 }
 
 # Save private key locally
 resource "local_file" "private_key" {
   content         = tls_private_key.rsa.private_key_pem
-  filename        = "${path.module}/${var.name_prefix}-kp.pem"
+  filename        = "${path.module}/${var.infrastructure_prefix}-kp.pem"
   file_permission = "0600"
 }
 
@@ -74,7 +79,7 @@ resource "aws_instance" "ec2_instance" {
   ]
 
   tags = {
-    Name = "${var.name_prefix}-ec2"
+    Name = "${var.infrastructure_prefix}-ec2"
   }
 }
 

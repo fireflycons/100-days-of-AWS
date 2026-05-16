@@ -11,17 +11,22 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "resource_name_prefix" {
+variable "infrastructure_prefix" {
   type        = string
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 resource "aws_ecr_repository" "private_repo" {
-  name                 = "${var.resource_name_prefix}-ecr"
+  name                 = "${var.infrastructure_prefix}-ecr"
   image_tag_mutability = "MUTABLE"
 
   tags = {
-    Name = "${var.resource_name_prefix}-ecr"
+    Name = "${var.infrastructure_prefix}-ecr"
   }
 }
 

@@ -11,9 +11,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "resource_name_prefix" {
+variable "infrastructure_prefix" {
   type        = string
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 # Default VPC and public EC2 instance lookup
@@ -39,7 +44,7 @@ data "aws_route_table" "default_main" {
 data "aws_instances" "public_ec2" {
   filter {
     name   = "tag:Name"
-    values = ["${var.resource_name_prefix}-public-ec2"]
+    values = ["${var.infrastructure_prefix}-public-ec2"]
   }
 }
 
@@ -61,14 +66,14 @@ resource "aws_security_group_rule" "public_ec2_ssh_ingress" {
 data "aws_vpc" "private" {
   filter {
     name   = "tag:Name"
-    values = ["${var.resource_name_prefix}-private-vpc"]
+    values = ["${var.infrastructure_prefix}-private-vpc"]
   }
 }
 
 data "aws_subnet" "private" {
   filter {
     name   = "tag:Name"
-    values = ["${var.resource_name_prefix}-private-subnet"]
+    values = ["${var.infrastructure_prefix}-private-subnet"]
   }
 }
 
@@ -83,7 +88,7 @@ data "aws_route_table" "private_main" {
 data "aws_instances" "private_ec2" {
   filter {
     name   = "tag:Name"
-    values = ["${var.resource_name_prefix}-private-ec2"]
+    values = ["${var.infrastructure_prefix}-private-ec2"]
   }
 }
 
@@ -107,7 +112,7 @@ resource "aws_vpc_peering_connection" "vpc_peering" {
   auto_accept = true
 
   tags = {
-    Name = "${var.resource_name_prefix}-vpc-peering"
+    Name = "${var.infrastructure_prefix}-vpc-peering"
   }
 }
 

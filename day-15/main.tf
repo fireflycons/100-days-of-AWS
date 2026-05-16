@@ -13,24 +13,29 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "prefix" {
-  description = "Resource name prefix (e.g. devops, xfusion etc.)"
+variable "infrastructure_prefix" {
+  description = "Resource name infrastructure_prefix (e.g. devops, xfusion etc.)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 data "aws_ebs_volume" "target" {
   filter {
     name   = "tag:Name"
-    values = ["${var.prefix}-vol"]
+    values = ["${var.infrastructure_prefix}-vol"]
   }
 }
 
 resource "aws_ebs_snapshot" "snapshot" {
   volume_id   = data.aws_ebs_volume.target.id
-  description = "${var.prefix} Snapshot"
+  description = "${var.infrastructure_prefix} Snapshot"
 
   tags = {
-    Name = "${var.prefix}-vol-ss"
+    Name = "${var.infrastructure_prefix}-vol-ss"
   }
 
   timeouts {

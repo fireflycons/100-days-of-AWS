@@ -25,7 +25,12 @@ variable "aws_region" {
 
 variable "resource_prefix" {
   type        = string
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 #######################################

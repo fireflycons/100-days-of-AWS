@@ -15,9 +15,14 @@ provider "aws" {
 }
 
 # Variable for the instance name prefix (no default value)
-variable "instance_name_prefix" {
+variable "infrastructure_prefix" {
   type        = string
-  description = "Prefix for the EC2 instance name (e.g. devops, xfusion, datacenter, nautilus etc.)"
+  description = "Prefix for the EC2 instance name (e.g. devops, xfusion, datacenter, nautilus)"
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 # Data source to fetch the latest Ubuntu 22.04 AMI
@@ -38,7 +43,7 @@ data "aws_ami" "ubuntu" {
 
 # Security Group to allow HTTP traffic on port 80
 resource "aws_security_group" "nginx_sg" {
-  name        = "${var.instance_name_prefix}-nginx-sg"
+  name        = "${var.infrastructure_prefix}-nginx-sg"
   description = "Allow HTTP traffic from internet"
 
   ingress {
@@ -73,6 +78,6 @@ resource "aws_instance" "ec2_instance" {
               EOF
 
   tags = {
-    Name = "${var.instance_name_prefix}-ec2"
+    Name = "${var.infrastructure_prefix}-ec2"
   }
 }

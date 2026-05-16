@@ -12,9 +12,14 @@ provider "aws" {
 }
 
 # Variable for instance name prefix
-variable "instance_name_prefix" {
+variable "infrastructure_prefix" {
   type        = string
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 # VPC
@@ -24,7 +29,7 @@ resource "aws_vpc" "public_vpc" {
   enable_dns_support   = true
 
   tags = {
-    Name = "${var.instance_name_prefix}-pub-vpc"
+    Name = "${var.infrastructure_prefix}-pub-vpc"
   }
 }
 
@@ -33,7 +38,7 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.public_vpc.id
 
   tags = {
-    Name = "${var.instance_name_prefix}-igw"
+    Name = "${var.infrastructure_prefix}-igw"
   }
 }
 
@@ -45,7 +50,7 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.instance_name_prefix}-pub-subnet"
+    Name = "${var.infrastructure_prefix}-pub-subnet"
   }
 }
 
@@ -59,7 +64,7 @@ resource "aws_route_table" "public_rt" {
   }
 
   tags = {
-    Name = "${var.instance_name_prefix}-pub-rt"
+    Name = "${var.infrastructure_prefix}-pub-rt"
   }
 }
 
@@ -71,7 +76,7 @@ resource "aws_route_table_association" "public_rt_assoc" {
 
 # Security Group
 resource "aws_security_group" "public_sg" {
-  name        = "${var.instance_name_prefix}-pub-sg"
+  name        = "${var.infrastructure_prefix}-pub-sg"
   description = "Security group allowing SSH from internet"
   vpc_id      = aws_vpc.public_vpc.id
 
@@ -90,7 +95,7 @@ resource "aws_security_group" "public_sg" {
   }
 
   tags = {
-    Name = "${var.instance_name_prefix}-pub-sg"
+    Name = "${var.infrastructure_prefix}-pub-sg"
   }
 }
 
@@ -103,7 +108,7 @@ resource "aws_instance" "public_ec2" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "${var.instance_name_prefix}-pub-ec2"
+    Name = "${var.infrastructure_prefix}-pub-ec2"
   }
 }
 

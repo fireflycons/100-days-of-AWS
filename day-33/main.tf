@@ -16,9 +16,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "infra_prefix" {
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+variable "infrastructure_prefix" {
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 # This will not work on Windows.
@@ -52,7 +57,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  function_name = "${var.infra_prefix}-lambda"
+  function_name = "${var.infrastructure_prefix}-lambda"
   role          = aws_iam_role.lambda_execution_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.11"
@@ -61,6 +66,6 @@ resource "aws_lambda_function" "lambda" {
 
   depends_on = [aws_iam_role_policy_attachment.lambda_basic_execution]
   tags = {
-    Name = "${var.infra_prefix}-lambda"
+    Name = "${var.infrastructure_prefix}-lambda"
   }
 }

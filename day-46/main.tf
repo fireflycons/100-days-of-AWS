@@ -30,11 +30,21 @@ variable "infrastructure_prefix" {
 variable "public_bucket_suffix" {
   description = "Numeric suffix for the public S3 bucket"
   type        = string
+
+  validation {
+    condition     = can(tonumber(var.public_bucket_suffix)) && tonumber(var.public_bucket_suffix) > 0
+    error_message = "public_bucket_suffix must be a positive integer"
+  }
 }
 
 variable "private_bucket_suffix" {
   description = "Numeric suffix for the private S3 bucket"
   type        = string
+
+  validation {
+    condition     = can(tonumber(var.private_bucket_suffix)) && tonumber(var.private_bucket_suffix) > 0
+    error_message = "private_bucket_suffix must be a positive integer"
+  }
 }
 
 #########################################################

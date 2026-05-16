@@ -12,9 +12,14 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "name_prefix" {
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+variable "infrastructure_prefix" {
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 data "aws_vpc" "default" {
@@ -36,7 +41,7 @@ data "aws_subnets" "default" {
 }
 
 resource "aws_security_group" "rds" {
-  name        = "${var.name_prefix}-rds-sg"
+  name        = "${var.infrastructure_prefix}-rds-sg"
   description = "Allow MySQL access from the default VPC CIDR"
   vpc_id      = data.aws_vpc.default.id
 
@@ -56,24 +61,24 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    Name        = "${var.name_prefix}-rds-sg"
+    Name        = "${var.infrastructure_prefix}-rds-sg"
     Environment = "sandbox"
   }
 }
 
 resource "aws_db_subnet_group" "rds" {
-  name       = "${var.name_prefix}-rds-subnet-group"
+  name       = "${var.infrastructure_prefix}-rds-subnet-group"
   subnet_ids = slice(data.aws_subnets.default.ids, 0, 2)
-  description = "Subnet group for private ${var.name_prefix}-rds in two AZs"
+  description = "Subnet group for private ${var.infrastructure_prefix}-rds in two AZs"
 
   tags = {
-    Name        = "${var.name_prefix}-rds-subnet-group"
+    Name        = "${var.infrastructure_prefix}-rds-subnet-group"
     Environment = "sandbox"
   }
 }
 
 resource "aws_db_instance" "rds" {
-  identifier            = "${var.name_prefix}-rds"
+  identifier            = "${var.infrastructure_prefix}-rds"
   allocated_storage     = 20
   max_allocated_storage = 50
   storage_type          = "gp2"
@@ -90,7 +95,7 @@ resource "aws_db_instance" "rds" {
   apply_immediately     = true
 
   tags = {
-    Name        = "${var.name_prefix}-rds"
+    Name        = "${var.infrastructure_prefix}-rds"
     Environment = "sandbox"
   }
 }

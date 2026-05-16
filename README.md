@@ -16,3 +16,6 @@ unzip terraform.zip
 mv terraform /usr/local/bin/
 ```
 
+Create terraform for the following with the provider set to us-east-1. Use a variable with no default for infrastructure prefix, which in this example is `devops`
+
+Create terraform that performs the same operations as the following with the provider set to us-east-1. Do not add any attributes that are not explicitly specified. Use a variable with no default for infrastructure prefix, which in this example is devops. Use AWS provider resources where possible and local-exec where not

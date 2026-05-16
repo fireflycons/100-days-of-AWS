@@ -15,20 +15,30 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "infra_prefix" {
+variable "infrastructure_prefix" {
   type        = string
-  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus etc.)"
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 variable "numeric_suffix" {
   type        = string
   description = "Numeric suffix for S3 bucket"
+
+  validation {
+    condition     = can(tonumber(var.numeric_suffix)) && tonumber(var.numeric_suffix) > 0
+    error_message = "numeric_suffix must be a positive integer"
+  }
 }
 
 data "aws_instance" "existing_ec2" {
   filter {
     name   = "tag:Name"
-    values = ["${var.infra_prefix}-ec2"]
+    values = ["${var.infrastructure_prefix}-ec2"]
   }
 }
 
@@ -62,11 +72,11 @@ resource "local_file" "public_key" {
 }
 
 resource "aws_s3_bucket" "s3" {
-  bucket = "${var.infra_prefix}-s3-${var.numeric_suffix}"
+  bucket = "${var.infrastructure_prefix}-s3-${var.numeric_suffix}"
 }
 
 resource "aws_iam_policy" "s3_policy" {
-  name = "${var.infra_prefix}-s3-policy"
+  name = "${var.infrastructure_prefix}-s3-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -88,7 +98,7 @@ resource "aws_iam_policy" "s3_policy" {
 }
 
 resource "aws_iam_role" "role" {
-  name = "${var.infra_prefix}-role"
+  name = "${var.infrastructure_prefix}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -110,7 +120,7 @@ resource "aws_iam_role_policy_attachment" "attach" {
 }
 
 resource "aws_iam_instance_profile" "profile" {
-  name = "${var.infra_prefix}-profile"
+  name = "${var.infrastructure_prefix}-profile"
   role = aws_iam_role.role.name
 }
 
