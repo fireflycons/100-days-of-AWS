@@ -1,4 +1,4 @@
-# 100 Days of Cloud - AWS (using terraform)
+# KodeKloud 100 Days of Cloud - AWS (using terraform)
 
 This repo contains terraform solutions to all the tasks where infrastructure needs to be deployed. It does *not* contain solutions to additional tasks that might be required after the infrastructure is deployed, if those tasks cannot be done from terraform.
 
