@@ -12,6 +12,8 @@ Where days are missing are for those tasks that either cannot be done using terr
 - [day-04](days/day-04/)
 - [day-05](days/day-05/)
 - [day-06](days/day-06/)
+- [day-10](days/day-10/)
+- [day-11](days/day-11/)
 - [day-15](days/day-15/)
 - [day-16](days/day-16/)
 - [day-17](days/day-17/)
