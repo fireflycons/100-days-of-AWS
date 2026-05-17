@@ -4,6 +4,19 @@ This repo contains terraform solutions to all the tasks where infrastructure nee
 
 Where days are missing are for those tasks that either cannot be done using terraform, or the question states to use the CLI for all tasks.
 
+For complete solutions you can refer to other peoples repos such as https://github.com/Srikanth0824/kodekloud-engineer/tree/main/100_Days_of_Cloud-AWS
+
+## Install terraform on the lab terminal
+
+For each lab, paste and run these commands into the lab terminal to set up terraform.
+
+```bash
+curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.15.2/terraform_1.15.2_linux_amd64.zip
+unzip terraform.zip
+mv terraform /usr/local/bin/
+```
+
+
 ## Solutions
 
 - [Day 01](days/day-01/) - Create Key Pair
@@ -46,16 +59,4 @@ Where days are missing are for those tasks that either cannot be done using terr
 - [Day 47](days/day-47/) - Integrating AWS SQS and SNS for Reliable Messaging
 - [Day 48](days/day-48/) - Automating Infrastructure Deployment with AWS CloudFormation
 - [Day 49](days/day-49/) - Centralized Audit Logging with VPC Peering
-
-For complete solutions you can refer to other peoples repos such as https://github.com/Srikanth0824/kodekloud-engineer/tree/main/100_Days_of_Cloud-AWS
-
-## Install terraform on the lab terminal
-
-For each lab, paste and run these commands into the lab terminal to set up terraform.
-
-```bash
-curl -Lo terraform.zip https://releases.hashicorp.com/terraform/1.15.2/terraform_1.15.2_linux_amd64.zip
-unzip terraform.zip
-mv terraform /usr/local/bin/
-```
 
