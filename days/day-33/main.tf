@@ -63,6 +63,8 @@ resource "aws_lambda_function" "lambda" {
   runtime       = "python3.11"
   filename      = data.archive_file.lambda_zip.output_path
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  memory_size   = 128
+  timeout       = 10
 
   depends_on = [aws_iam_role_policy_attachment.lambda_basic_execution]
   tags = {
