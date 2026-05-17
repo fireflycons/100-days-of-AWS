@@ -1,13 +1,18 @@
-## Task: CI/CD Automation Using AWS CodePipeline
-The Nautilus DevOps team is responsible for managing and deploying applications efficiently. They want to streamline their CI/CD process using AWS CodePipeline and AWS S3. Your task is to set up a CI/CD pipeline that automates the deployment of a sample web application on an S3 bucket configured as a static website.
+## Task: Enable Internet Access for Private EC2 using NAT Gateway
+The Nautilus DevOps team is tasked with enabling internet access for an EC2 instance running in a private subnet. This instance should be able to upload a test file to a public S3 bucket once it can access the internet. To achieve this, the team must set up a NAT Gateway in a public subnet within the same VPC.
 
-For this task, perform the following steps:
-1. There is a bucket named `datacenter-source-21170` which contains a static website source code. Create a new S3 bucket named `datacenter-deployment-31991`. Configure the bucket to serve static website content and ensure the bucket is publicly accessible.
-2. Create an AWS CodePipeline named `datacenter-webapp-pipeline` with the following stages:
-    - **Source**: Source Provider - AWS S3, Bucket Name - `datacenter-source-21170`.
-    - **Build**: Build Provider - AWS CodeBuild, Project Name - `datacenter-build-project`, Environment - Managed image, `aws/codebuild/amazonlinux2-x86_64-standard:4.0`, Linux, and set the Image version to `Always use the latest image` for this runtime version. Insert the necessary build commands in the Build commands section to directly upload the `index.html` file to the S3 bucket.
+1. A VPC named `datacenter-priv-vpc` and a private subnet `datacenter-priv-subnet` have already been created.
+1. An EC2 instance named `datacenter-priv-ec2` is already running in the private subnet.
+1. The EC2 instance is configured with a cron job that uploads a test file to a bucket `datacenter-nat-976947076` once internet is accessible.
 
-**Expected Outcome:**
-When any changes made to the file `index.html` in `datacenter-source-21170` bucket, the pipeline should automatically build the project using the inserted build commands and deploy the `index.html` file to the `datacenter-deployment-31991` bucket. The S3 bucket should be configured to allow public access, and the website should be accessible via the S3 static website URL.
+Your task is to:
+
+* Create a public subnet named `datacenter-pub-subnet` in the same VPC.
+* Create an Internet Gateway and attach it to the VPC.
+* Create a route table `datacenter-pub-rt` and associate it with the public subnet.
+* Allocate an Elastic IP and create a NAT Gateway named `datacenter-natgw`.
+* Update the private route table to route `0.0.0.0/0` traffic via the NAT Gateway.
+
+Once complete, verify that the EC2 instance can reach the internet by confirming the presence of the test file in the S3 bucket datacenter-nat-976947076. After completing all the configuration, please wait a few minutes for the test file to appear in the bucket, as it may take 2–3 minutes.
 
 ---
