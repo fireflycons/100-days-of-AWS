@@ -23,8 +23,13 @@ provider "aws" {
 #########################################################
 
 variable "infrastructure_prefix" {
-  description = "Prefix used for all infrastructure resources"
+  description = "Prefix used for resource names (e.g. devops, xfusion, datacenter, nautilus)"
   type        = string
+
+  validation {
+    condition     = contains(["devops", "xfusion", "datacenter", "nautilus"], var.infrastructure_prefix)
+    error_message = "infrastructure_prefix must be one of: devops, xfusion, datacenter, nautilus"
+  }
 }
 
 variable "public_bucket_suffix" {
@@ -76,15 +81,6 @@ resource "aws_s3_bucket_public_access_block" "public_bucket_access_block" {
   ignore_public_acls      = false
   restrict_public_buckets = false
 }
-
-# resource "aws_s3_bucket_acl" "public_bucket_acl" {
-#   depends_on = [
-#     aws_s3_bucket_public_access_block.public_bucket_access_block
-#   ]
-
-#   bucket = aws_s3_bucket.public_bucket.id
-#   acl    = "public-read"
-# }
 
 resource "aws_s3_bucket_policy" "public_bucket_policy" {
   bucket = aws_s3_bucket.public_bucket.id
