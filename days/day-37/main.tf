@@ -126,7 +126,7 @@ resource "aws_iam_instance_profile" "profile" {
 
 resource "null_resource" "attach_role" {
   provisioner "local-exec" {
-    command = "aws ec2 associate-iam-instance-profile --instance-id ${data.aws_instance.existing_ec2.id} --iam-instance-profile Name=${aws_iam_instance_profile.profile.name}"
+    command = "aws ec2 associate-iam-instance-profile --instance-id ${data.aws_instance.existing_ec2.id} --iam-instance-profile Name=${var.infrastructure_prefix}-profile"
   }
 
   depends_on = [aws_iam_instance_profile.profile]
