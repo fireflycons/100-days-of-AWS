@@ -48,6 +48,7 @@ mv terraform /usr/local/bin/
 - [Day 32](days/day-32/) - Snapshot and Restoration of an RDS Instance
 - [Day 33](days/day-33/) - Create a Lambda Function
 - [Day 35](days/day-35/) - Deploying and Managing Applications on AWS
+- [Day 36](days/day-36/) - Load Balancing EC2 Instances with Application Load Balancer
 - [Day 37](days/day-37/) - Managing EC2 Access with S3 Role-based Permissions
 - [Day 38](days/day-38/) - Deploying Containerized Applications with Amazon ECS
 - [Day 39](days/day-39/) - Hosting a Static Website on AWS S3
