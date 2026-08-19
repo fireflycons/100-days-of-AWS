@@ -104,6 +104,7 @@ resource "aws_lb_target_group" "tg" {
   name     = "${var.infrastructure_prefix}-tg"
   port     = 80
   protocol = "HTTP"
+  target_type = "instance"
   vpc_id   = data.aws_vpc.default.id
 
   tags = {
@@ -134,7 +135,10 @@ resource "aws_lb" "alb" {
     aws_security_group.alb_sg.id
   ]
 
-  subnets = slice(data.aws_subnets.default.ids, 0, 2)
+  subnets = distinct(concat(
+    [data.aws_instance.ec2_instance.subnet_id],
+    slice(data.aws_subnets.default.ids, 0, 2)
+  ))
 
   tags = {
     Name = "${var.infrastructure_prefix}-alb"
