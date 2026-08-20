@@ -55,6 +55,7 @@ mv terraform /usr/local/bin/
 - [Day 41](days/day-41/) - Securing Data with AWS KMS
 - [Day 42](days/day-42/) - Building and Managing NoSQL Databases with AWS DynamoDB
 - [Day 43](days/day-43/) - Scaling and Managing Kubernetes Clusters with Amazon EKS
+- [Day 44](days/day-44/) - Implementing Auto Scaling for High Availability in AWS
 - [Day 45](days/day-45/) - Enable Internet Access for Private EC2 using NAT Gateway
 - [Day 46](days/day-46/) - Event-Driven Processing with Amazon S3 and Lambda
 - [Day 47](days/day-47/) - Integrating AWS SQS and SNS for Reliable Messaging
