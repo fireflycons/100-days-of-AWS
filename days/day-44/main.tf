@@ -34,6 +34,18 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_subnet" "default" {
+  for_each = toset(data.aws_subnets.default.ids)
+  id       = each.value
+}
+
+locals {
+  asg_subnet_ids = [
+    for subnet_id, subnet in data.aws_subnet.default : subnet_id
+    if subnet.availability_zone != "us-east-1e"
+  ]
+}
+
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
@@ -112,8 +124,8 @@ resource "aws_security_group" "alb_sg" {
 }
 
 resource "aws_launch_template" "this" {
-  name         = "${var.infrastructure_prefix}-launch-template"
-  image_id     = data.aws_ami.amazon_linux_2023.id
+  name          = "${var.infrastructure_prefix}-launch-template"
+  image_id      = data.aws_ami.amazon_linux_2023.id
   instance_type = "t2.micro"
 
   vpc_security_group_ids = [aws_security_group.instance_sg.id]
@@ -176,7 +188,7 @@ resource "aws_autoscaling_group" "this" {
   max_size            = 2
   min_size            = 1
   desired_capacity    = 1
-  vpc_zone_identifier = data.aws_subnets.default.ids
+  vpc_zone_identifier = local.asg_subnet_ids
 
   launch_template {
     id      = aws_launch_template.this.id

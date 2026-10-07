@@ -39,6 +39,18 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_subnets" "instance_eligible" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+
+  filter {
+    name   = "availability-zone"
+    values = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1f"]
+  }
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"]
@@ -71,11 +83,11 @@ resource "aws_security_group" "xfusion_sg" {
   vpc_id = data.aws_vpc.default.id
 
   ingress {
-    description       = "Allow HTTP from ALB (default SG)"
-    from_port         = 80
-    to_port           = 80
-    protocol          = "tcp"
-    security_groups   = [data.aws_security_group.default_sg.id]
+    description     = "Allow HTTP from ALB (default SG)"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [data.aws_security_group.default_sg.id]
   }
 
   egress {
@@ -105,10 +117,10 @@ resource "aws_lb" "xfusion_alb" {
 
 # Target group for the EC2 instance
 resource "aws_lb_target_group" "xfusion_tg" {
-  name     = "${var.infrastructure_prefix}-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = data.aws_vpc.default.id
+  name        = "${var.infrastructure_prefix}-tg"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.default.id
   target_type = "instance"
 
   health_check {
@@ -138,11 +150,11 @@ resource "aws_lb_listener" "http" {
 
 # EC2 instance running nginx; placed in a subnet covered by the ALB (use first default subnet)
 resource "aws_instance" "xfusion_ec2" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t3.micro"
-  subnet_id              = element(data.aws_subnets.default.ids, 0)
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = "t3.micro"
+  subnet_id                   = element(data.aws_subnets.instance_eligible.ids, 0)
   associate_public_ip_address = true
-  vpc_security_group_ids = [aws_security_group.xfusion_sg.id]
+  vpc_security_group_ids      = [aws_security_group.xfusion_sg.id]
 
   user_data = <<-EOF
               #!/bin/bash
