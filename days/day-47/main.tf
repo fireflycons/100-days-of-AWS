@@ -20,6 +20,12 @@ variable "prefix" {
   type        = string
 }
 
+variable "lambda_role_name" {
+  description = "Lambda execution role name"
+  type        = string
+  default     = "lambda_execution_role"
+}
+
 resource "local_file" "cloudformation" {
   filename = "${path.module}/cloudformation.yaml"
 
@@ -102,7 +108,7 @@ Resources:
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: lambda-execution-role
+      RoleName: ${var.lambda_role_name}
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
