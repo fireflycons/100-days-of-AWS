@@ -102,7 +102,7 @@ Resources:
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: ${var.prefix}-lambda-execution-role
+      RoleName: lambda-execution-role
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -130,41 +130,7 @@ Resources:
           - LambdaRole
           - Arn
       Code:
-        ZipFile: >
-          import boto3 
-          import os
-
-          sqs = boto3.client('sqs')
-
-          def delete_message(queue_url, receipt_handle, message):
-              sqs.delete_message(
-                  QueueUrl=queue_url,
-                  ReceiptHandle=receipt_handle
-              )
-              return "Message '" + message + "' deleted"
-
-          def poll_messages(queue_url):
-              response = sqs.receive_message(
-                  QueueUrl=queue_url,
-                  AttributeNames=[],
-                  MaxNumberOfMessages=1,
-                  MessageAttributeNames=['All'],
-                  WaitTimeSeconds=3
-              )
-
-              if "Messages" in response:
-                  receipt_handle = response['Messages'][0]['ReceiptHandle']
-                  message = response['Messages'][0]['Body']
-                  delete_message(queue_url, receipt_handle, message)
-                  return "Message processed"
-
-              return "No more messages to poll"
-
-          def lambda_handler(event, context):
-              response = poll_messages(os.environ['high_priority_queue'])
-              if response == "No more messages to poll":
-                  response = poll_messages(os.environ['low_priority_queue'])
-              return response
+        ZipFile: ${jsonencode(file("/root/index.py"))}
 
       Environment:
         Variables:
